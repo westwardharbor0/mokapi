@@ -1,0 +1,8 @@
+{
+  "endpoint": "/",
+  "method": "POST",
+  "response_status_code": 200,
+  "response_payload": {
+    "status": "OK"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "endpoint": "/",
+  "method": "DELETE",
+  "response_status_code": 503,
+  "response_payload": {
+    "status": "NOT OK"
+  }
+}
