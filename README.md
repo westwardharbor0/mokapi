@@ -53,3 +53,5 @@ curl --location 'localhost:8080/mokapi/add' \
 
 ## Known TODOs
 - [ ] Release as package or GO binary
+- [ ] Github Actions for releases
+- [ ] Support more formats than JSON
