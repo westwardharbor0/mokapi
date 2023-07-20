@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"strings"
@@ -118,15 +119,33 @@ func main() {
 // reloadMiddleware handles requests if found in definitions.
 // We use middleware to dynamically add and remove endpoints.
 func reloadMiddleware(c *gin.Context) {
-	key := fmt.Sprintf("%s:%s", c.Request.Method, c.Request.RequestURI)
-	if def, exists := apiDefinitions.Endpoints[key]; exists {
+	if def, err := getDefinition(c); err == nil {
 		c.JSON(def.ResponseStatusCode, def.ResponsePayload)
 		c.Done()
 	}
-	if def, exists := fileDefinitions.Endpoints[key]; exists {
-		c.JSON(def.ResponseStatusCode, def.ResponsePayload)
-		c.Done()
+}
+
+// getDefinition returns endpoint definition based on the request URI.
+// We first search for paths with query params and then only path.
+func getDefinition(c *gin.Context) (*Definition, error) {
+	keyParams := fmt.Sprintf("%s:%s", c.Request.Method, c.Request.RequestURI)
+	keyHollow := fmt.Sprintf("%s:%s", c.Request.Method, c.Request.URL.Path)
+
+	if def, exists := apiDefinitions.Endpoints[keyParams]; exists {
+		return def, nil
 	}
+	if def, exists := fileDefinitions.Endpoints[keyParams]; exists {
+		return def, nil
+	}
+
+	if def, exists := apiDefinitions.Endpoints[keyHollow]; exists {
+		return def, nil
+	}
+	if def, exists := fileDefinitions.Endpoints[keyHollow]; exists {
+		return def, nil
+	}
+
+	return nil, errors.New("failed to find definition")
 }
 
 // watchDefinitions detects file changes and triggers endpoint refresh if needed.
